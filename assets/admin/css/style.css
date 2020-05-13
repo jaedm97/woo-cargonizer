@@ -1,0 +1,63 @@
+/*
+Admin css
+*/
+
+.pb_settings_form a,
+.pb_settings_form a:hover,
+.pb_settings_form a:focus,
+.pb_settings_form a:visited,
+.pb_settings_form a:active {
+    color: #4a4a4a !important;
+    text-decoration: none !important;
+    outline: none !important;
+    box-shadow: none !important;
+}
+
+.pb_settings_form input[type="number"] {
+    padding: 0 0 0 8px !important;
+}
+
+
+.woocngr-field-extra {
+    font-size: 16px;
+    display: inline-block;
+    font-weight: 600;
+}
+
+.woocngr_transport_agreement {
+    margin-top: 15px;
+}
+
+#woocngr_managerships_id {
+    pointer-events: none;
+    user-select: none;
+    background: #f1f1f1;
+    color: #505050;
+}
+
+.woocngr_product {
+    display: none;
+}
+
+.woocngr_product.should-display {
+    display: table-row;
+}
+
+.woocngr-send-details {
+    background: #252525;
+    color: #fff !important;
+    padding: 10px 30px;
+    border-radius: 3px;
+    font-size: 13px;
+    text-transform: uppercase;
+    line-height: 26px;
+    text-decoration: none !important;
+    outline: none !important;
+    box-shadow: none !important;
+    transition: 0.3s;
+    display: inline;
+}
+
+.woocngr-send-details:hover {
+    background: #2b9e30;
+}
