@@ -14,10 +14,11 @@ if ( ! function_exists( 'woocngr_create_consignment' ) ) {
 	 * Create consignment and store response in order meta
 	 *
 	 * @param $order_id
+	 * @param $args
 	 *
 	 * @return bool
 	 */
-	function woocngr_create_consignment( $order_id ) {
+	function woocngr_create_consignment( $order_id, $args = array() ) {
 
 		$order = wc_get_order( $order_id );
 
@@ -69,17 +70,20 @@ if ( ! function_exists( 'woocngr_create_consignment' ) ) {
 
 				$order_item_product = $order_item->get_product();
 				$product_weight     = in_array( 'fixed_weight', $order_settings ) ? $order_fixed_weight : $order_item_product->get_weight();
-				$product_items[]    = sprintf( '<item type="package" amount="%s" weight="%s" volume="%s" length="%s" height="%s" width="%s" description="%s"/>',
+				$product_items[]    = sprintf( '<item volume="%s" weight="%s" length="%s" width="%s" height="%s" amount="%s" description="%s" type="package" />',
+					woocngr()->get_args_option( 'package', $order_item->get_quantity(), $args ),
+					woocngr()->get_args_option( 'weight', $product_weight, $args ),
+					woocngr()->get_args_option( 'length', $order_item_product->get_length(), $args ),
+					woocngr()->get_args_option( 'width', $order_item_product->get_width(), $args ),
+					woocngr()->get_args_option( 'height', $order_item_product->get_height(), $args ),
 					$order_item->get_subtotal(),
-					$product_weight,
-					$order_item->get_quantity(),
-					$order_item_product->get_length(),
-					$order_item_product->get_height(),
-					$order_item_product->get_width(),
 					esc_html( $order_item_product->get_short_description() )
 				);
 			}
 		}
+
+		$agreement_id = woocngr()->get_args_option( 'agreement_id', $agreement_id, $args );
+		$product_id   = woocngr()->get_args_option( 'product_id', $product_id, $args );
 
 		$args_str = '<consignments>
 			<consignment transport_agreement="' . $agreement_id . '" estimate="true">
@@ -101,6 +105,10 @@ if ( ! function_exists( 'woocngr_create_consignment' ) ) {
 				</messages>
 			</consignment>
 		</consignments>';
+
+		update_option( 'request_submitted', $args_str );
+
+
 		$response = woocngr_get_curl_response( 'consignments', array( CURLOPT_POSTFIELDS => $args_str ), true );
 
 		if ( is_wp_error( $response ) ) {
@@ -186,6 +194,7 @@ if ( ! function_exists( 'woocngr_update_agreements' ) ) {
 		}
 
 		update_option( 'woocngr_agreement_data', $agreements_data );
+		update_option( 'woocngr_transfer_agreement', $response );
 	}
 }
 
@@ -426,3 +435,50 @@ if ( ! function_exists( 'woocngr_locate_template' ) ) {
 		return apply_filters( 'woocngr_filters_locate_template', $template, $template_name, $template_path );
 	}
 }
+
+
+if ( ! function_exists( 'woocngr_generate_products_list' ) ) {
+	/**
+	 * Generate products list
+	 *
+	 * @return array
+	 */
+	function woocngr_generate_products_list() {
+
+		$transfer_agreement = woocngr()->get_option( 'woocngr_transfer_agreement', array() );
+		$agreements_data    = array();
+
+		foreach ( woocngr()->get_args_option( 'transport-agreement', array(), $transfer_agreement ) as $agrrement ) {
+
+			$agreement_id = woocngr()->get_args_option( 'id', '', $agrrement );
+			$carrier_arr  = woocngr()->get_args_option( 'carrier', array(), $agrrement );
+			$products_arr = woocngr()->get_args_option( 'products', array(), $agrrement );
+
+			foreach ( woocngr()->get_args_option( 'product', array(), $products_arr ) as $product ) {
+
+				$identifier = woocngr()->get_args_option( 'identifier', '', $product );
+				$services   = woocngr()->get_args_option( 'services', array(), $product );
+				$service    = woocngr()->get_args_option( 'service', array(), $services );
+				$data       = array(
+					woocngr()->get_args_option( 'name', array(), $carrier_arr ),
+					woocngr()->get_args_option( 'name', '', $product ),
+					woocngr()->get_args_option( 'number', '', $agrrement ),
+					woocngr()->get_args_option( 'name', array(), $service ),
+				);
+
+				if ( ! empty( $identifier ) ) {
+					$agreements_data[ $identifier . '-' . $agreement_id ] = implode( ' | ', array_filter( $data ) );
+				}
+			}
+		}
+
+		return $agreements_data;
+	}
+}
+
+
+add_action( 'wp_footer', function () {
+	if ( isset( $_GET['debug'] ) && $_GET['debug'] === 'yes' ) {
+
+	}
+} );

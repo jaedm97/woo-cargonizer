@@ -22,7 +22,70 @@ if ( ! class_exists( 'WOOCNGR_Hooks' ) ) {
 
 			add_action( 'manage_shop_order_posts_columns', array( $this, 'add_columns' ), 16, 1 );
 			add_action( 'manage_shop_order_posts_custom_column', array( $this, 'columns_content' ), 10, 2 );
+
 			add_action( 'wp_ajax_woocngr_send_details', array( $this, 'send_details' ) );
+			add_action( 'wp_ajax_woocngr_override_send', array( $this, 'override_send' ) );
+
+			add_action( 'add_meta_boxes', array( $this, 'add_meta_boxes' ) );
+		}
+
+
+		/**
+		 * Render box
+		 */
+		function render_box() {
+			woocngr_get_template( 'shipping-metabox.php' );
+		}
+
+
+		/**
+		 *
+		 * @param $post_type
+		 */
+		function add_meta_boxes( $post_type ) {
+
+			if ( $post_type !== 'shop_order' ) {
+				return;
+			}
+
+			$box_title = esc_html__( 'Shipping and Return ', WOOCNGR_TD );
+
+			add_meta_box( 'woocngr', $box_title, array( $this, 'render_box' ), $post_type, 'side', 'high' );
+		}
+
+
+		/**
+		 * Override order data and send to cargoniser
+		 */
+		function override_send() {
+
+			$posted_data       = wp_unslash( $_POST );
+			$order_id          = woocngr()->get_args_option( 'order_id', '', $posted_data );
+			$transport_product = woocngr()->get_args_option( 'transport_product', '', $posted_data );
+			$transport_product = explode( '-', $transport_product );
+			$transport_product = array_map( 'trim', $transport_product );
+			$product_id        = isset( $transport_product[0] ) ? $transport_product[0] : '';
+			$agreement_id      = isset( $transport_product[1] ) ? $transport_product[1] : '';
+
+			if ( empty( $order_id ) || empty( $product_id ) || empty( $agreement_id ) ) {
+				wp_send_json_error( esc_html__( 'Error occured!', WOOCNGR_TD ) );
+			}
+
+			$override_args = array(
+				'product_id'   => $product_id,
+				'agreement_id' => $agreement_id,
+				'package'      => woocngr()->get_args_option( 'package', '', $posted_data ),
+				'weight'       => woocngr()->get_args_option( 'weight', '', $posted_data ),
+				'length'       => woocngr()->get_args_option( 'length', '', $posted_data ),
+				'width '       => woocngr()->get_args_option( 'width', '', $posted_data ),
+				'height'       => woocngr()->get_args_option( 'height', '', $posted_data ),
+			);
+
+			if ( ! woocngr_create_consignment( $order_id, $override_args ) ) {
+				wp_send_json_error( esc_html__( 'Error occured!', WOOCNGR_TD ) );
+			}
+
+			wp_send_json_success();
 		}
 
 

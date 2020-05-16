@@ -5,6 +5,53 @@
 (function ($, window, document, pluginObject) {
     "use strict";
 
+
+    $(document).on('click', '.woocngr-popup-send', function () {
+
+        let sendButton = $(this),
+            orderID = sendButton.data('order_id'),
+            popupBox = sendButton.parent().parent(),
+            htmlPrev = sendButton.html();
+
+        sendButton.html(pluginObject.sendingText);
+
+        $.ajax({
+            type: 'POST',
+            context: this,
+            url: pluginObject.ajaxURL,
+            data: {
+                'action': 'woocngr_override_send',
+                'order_id': orderID,
+                'transport_product': popupBox.find('#woocngr_so_transport_product').val(),
+                'package': popupBox.find('#woocngr_so_package').val(),
+                'weight': popupBox.find('#woocngr_so_weight').val(),
+                'length': popupBox.find('#woocngr_so_length').val(),
+                'width': popupBox.find('#woocngr_so_width').val(),
+                'height': popupBox.find('#woocngr_so_height').val(),
+            },
+            success: function (response) {
+                sendButton.html(response.success ? pluginObject.sendingSuccessText : response.data);
+                popupBox.find('[id^=woocngr_]').each(function () {
+                    $(this).val('');
+                });
+                sendButton.html(htmlPrev);
+            }
+        });
+
+        return false;
+    });
+
+
+    $(document).on('click', '.woocngr-popup-cancel', function () {
+        $('.woocngr-popup-container').fadeOut();
+    });
+
+
+    $(document).on('click', '.woocngr-btn-shipping', function () {
+        $('.woocngr-popup-container').fadeIn();
+    });
+
+
     $(document).on('change', '.woocngr_transport_agreement input[type="radio"]', function () {
 
         let agreementID = $('.woocngr_transport_agreement input[type="radio"]:checked').val();
