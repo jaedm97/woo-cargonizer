@@ -263,6 +263,12 @@ if ( ! class_exists( 'WOOCNGR_Functions' ) ) {
 
 			foreach ( WC()->shipping()->get_shipping_methods() as $method_id => $method ) {
 
+				$product_selected = $this->get_option( 'woocngr_shi_product_' . $method_id );
+				$product_selected = explode( '-', $product_selected );
+				$product_selected = isset( $product_selected[0] ) ? $product_selected[0] : '';
+				$services_all     = woocngr_services_data();
+				$services_all     = $this->get_args_option( $product_selected, array(), $services_all );
+
 				$shipping_options[] = array(
 					'id'      => 'woocngr_shi_product_' . $method_id,
 					'class'   => 'woocngr_shi_product_selection',
@@ -274,21 +280,12 @@ if ( ! class_exists( 'WOOCNGR_Functions' ) ) {
 					),
 					'args'    => woocngr_generate_products_list(),
 				);
-
 				$shipping_options[] = array(
 					'id'      => 'woocngr_shi_printer_' . $method_id,
 					'details' => esc_html__( 'Select a printer', 'woo-cargonizer' ),
 					'type'    => 'select',
 					'args'    => woocngr()->get_option( 'woocngr_printers', array() ),
 				);
-
-
-				$product_selected = $this->get_option( 'woocngr_shi_product_' . $method_id );
-				$product_selected = explode( '-', $product_selected );
-				$product_selected = isset( $product_selected[0] ) ? $product_selected[0] : '';
-				$services_all     = woocngr_services_data();
-				$services_all     = $this->get_args_option( $product_selected, array(), $services_all );
-
 				$shipping_options[] = array(
 					'id'      => 'woocngr_shi_services_' . $method_id,
 					'class'   => 'woocngr_shi_product_' . $method_id,
@@ -297,7 +294,6 @@ if ( ! class_exists( 'WOOCNGR_Functions' ) ) {
 					'args'    => $services_all,
 				);
 			}
-
 
 			$pages['woocngr-printers'] = array(
 				'page_nav'      => esc_html__( 'Printers and Shipping', 'woo-cargonizer' ),
