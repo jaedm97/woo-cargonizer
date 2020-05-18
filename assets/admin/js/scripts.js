@@ -19,8 +19,9 @@
         $.each(servicesData, function (product_id, product_services) {
             if (product_id === productID) {
                 $.each(product_services, function (key, value) {
-                    newServiceSelections.push('<label for="woocngr_shi_services_' + key + '">' +
-                        '<input type="checkbox" id="woocngr_shi_services_' + key + '" name="' + fieldName + '[]" value="' + key + '">' +
+                    let uniqueIdenfier = key + '_' + Math.floor(Math.random() * 1000);
+                    newServiceSelections.push('<label for="woocngr_shi_services_' + uniqueIdenfier + '">' +
+                        '<input type="checkbox" id="woocngr_shi_services_' + uniqueIdenfier + '" name="' + fieldName + '[]" value="' + key + '">' +
                         value + '</label>');
                 });
             }
