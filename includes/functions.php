@@ -605,15 +605,5 @@ add_action( 'wp_footer', function () {
 			print_r( woocngr()->get_option( $opt_id ) );
 			echo '</pre>';
 		}
-
-
-		foreach ( WC_Shipping_Zones::get_zones() as $zone ) {
-
-			$shipping_methods = woocngr()->get_args_option( 'shipping_methods', array(), $zone );
-
-			echo '<pre>';
-			print_r( $zone );
-			echo '</pre>';
-		}
 	}
 } );

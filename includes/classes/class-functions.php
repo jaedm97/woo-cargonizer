@@ -398,8 +398,13 @@ if ( ! class_exists( 'WOOCNGR_Functions' ) ) {
 			$woocngr_profile = $this->get_option( 'woocngr_profile', array() );
 			$managerships    = $this->get_args_option( 'managerships', array(), $woocngr_profile );
 			$managership     = $this->get_args_option( 'managership', array(), $managerships );
+			$managership_id  = woocngr()->get_args_option( 'id', '', $managership );
 
-			$this->managership_id = $this->get_args_option( 'id', '', $managership );
+			if ( is_array( $managership_id ) && isset( $managership_id[0] ) ) {
+				$managership_id = $managership_id[0];
+			}
+
+			$this->managership_id = $managership_id;
 		}
 
 
