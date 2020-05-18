@@ -25,9 +25,33 @@ if ( ! class_exists( 'WOOCNGR_Hooks' ) ) {
 
 			add_action( 'wp_ajax_woocngr_send_details', array( $this, 'send_details' ) );
 			add_action( 'wp_ajax_woocngr_override_send', array( $this, 'override_send' ) );
+			add_action( 'wp_ajax_woocngr_update_pickup', array( $this, 'update_pickup' ) );
+			add_action( 'wp_ajax_nopriv_woocngr_update_pickup', array( $this, 'update_pickup' ) );
 
 			add_action( 'add_meta_boxes', array( $this, 'add_meta_boxes' ) );
 			add_action( 'woocngr_consignment_created', array( $this, 'printing_labels' ), 10, 3 );
+			add_action( 'woocommerce_checkout_billing', array( $this, 'render_pickup_selections' ), 0 );
+			add_action( 'woocommerce_checkout_update_order_meta', array( $this, 'update_order_meta' ), 10, 1 );
+		}
+
+
+		/**
+		 * Update order meta for pickup address
+		 *
+		 * @param $order_id
+		 */
+		function update_order_meta( $order_id ) {
+			if ( ! empty( $_POST['woocngr_pickup_address'] ) ) {
+				update_post_meta( $order_id, 'woocngr_pickup_address', sanitize_text_field( $_POST['woocngr_pickup_address'] ) );
+			}
+		}
+
+
+		/**
+		 * Render conditional pickup address picker
+		 */
+		function render_pickup_selections() {
+			printf( '<div class="woocngr_pickup_address_wrap"></div>' );
 		}
 
 
@@ -83,6 +107,79 @@ if ( ! class_exists( 'WOOCNGR_Hooks' ) ) {
 			$box_title = esc_html__( 'Shipping and Return ', WOOCNGR_TD );
 
 			add_meta_box( 'woocngr', $box_title, array( $this, 'render_box' ), $post_type, 'side', 'high' );
+		}
+
+
+		/**
+		 * Update pickup address upon country selection in checkout
+		 */
+		function update_pickup() {
+
+			$posted_data        = wp_unslash( $_POST );
+			$zip_code           = woocngr()->get_args_option( 'zipcode', '', $posted_data );
+			$country            = woocngr()->get_args_option( 'country', '', $posted_data );
+			$career_name        = '';
+			$agreement_id       = woocngr()->get_option( 'woocngr_transport_agreement', '' );
+			$transfer_agreement = woocngr()->get_option( 'woocngr_transfer_agreement', array() );
+			$transfer_agreement = woocngr()->get_args_option( 'transport-agreement', array(), $transfer_agreement );
+
+			foreach ( $transfer_agreement as $agreement ) {
+
+				$career_arr = woocngr()->get_args_option( 'carrier', array(), $agreement );
+				$this_id    = woocngr()->get_args_option( 'id', array(), $agreement );
+
+				if ( in_array( $this_id, $agreement_id ) ) {
+					$career_name = wc_strtolower( woocngr()->get_args_option( 'name', array(), $career_arr ) );
+				}
+			}
+
+			$args = array(
+				'url' => sprintf( '%sservice_partners.xml?%s', woocngr()->base_url, http_build_query( array(
+					'country'  => $country,
+					'postcode' => $zip_code,
+					'carrier'  => $career_name,
+				) ) ),
+			);
+
+			$response         = woocngr_get_curl_response( '', $args );
+			$service_partners = woocngr()->get_args_option( 'service-partners', array(), $response );
+			$service_partners = woocngr()->get_args_option( 'service-partner', array(), $service_partners );
+			$service_partners = isset( $service_partners[0] ) ? $service_partners : array( $service_partners );
+			$service_partners = array_filter( $service_partners );
+			$partners_arr     = array();
+
+			foreach ( $service_partners as $partner ) {
+
+				$partner_name       = woocngr()->get_args_option( 'name', '', $partner );
+				$partner_city       = woocngr()->get_args_option( 'city', '', $partner );
+				$partner_number     = woocngr()->get_args_option( 'number', '', $partner );
+				$partner_address1   = woocngr()->get_args_option( 'address1', '', $partner );
+				$partner_postcode   = woocngr()->get_args_option( 'postcode', '', $partner );
+				$partner_country    = woocngr()->get_args_option( 'country', '', $partner );
+				$partner_identifier = implode( '~', array(
+					$partner_name,
+					$partner_number,
+					$partner_address1,
+					$partner_postcode,
+					$partner_city,
+					$partner_country
+				) );
+				$partner_value      = implode( ' | ', array(
+					$partner_name,
+					$partner_city,
+					$partner_postcode,
+				) );
+
+				$partners_arr[ $partner_identifier ] = $partner_value;
+			}
+
+			ob_start();
+			woocommerce_form_field( 'woocngr_pickup_address', array(
+				'label'   => esc_html__( 'Select pickup address', WOOCNGR_TD ),
+				'type'    => 'select',
+				'options' => $partners_arr,
+			) );
+			wp_send_json_success( ob_get_clean() );
 		}
 
 

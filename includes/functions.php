@@ -84,6 +84,27 @@ if ( ! function_exists( 'woocngr_create_consignment' ) ) {
 		$agreement_id = woocngr()->get_args_option( 'agreement_id', $agreement_id, $args );
 		$product_id   = woocngr()->get_args_option( 'product_id', $product_id, $args );
 
+		$_s_partner  = '';
+		$s_partner   = woocngr()->get_meta( 'woocngr_pickup_address', $order_id );
+		$s_partner   = explode( '~', $s_partner );
+		$sp_name     = isset( $s_partner[0] ) ? $s_partner[0] : '';
+		$sp_number   = isset( $s_partner[1] ) ? $s_partner[1] : '';
+		$sp_address1 = isset( $s_partner[2] ) ? $s_partner[2] : '';
+		$sp_postcode = isset( $s_partner[3] ) ? $s_partner[3] : '';
+		$sp_city     = isset( $s_partner[4] ) ? $s_partner[4] : '';
+		$sp_country  = isset( $s_partner[5] ) ? $s_partner[5] : '';
+
+		if ( ! empty( $sp_name ) && ! empty( $sp_number ) && ! empty( $sp_postcode ) && ! empty( $sp_city ) && ! empty( $sp_country ) ) {
+			$_s_partner = sprintf( '<service_partner>%s</service_partner>', implode( '', array(
+				sprintf( '<number>%s</number>', $sp_number ),
+				sprintf( '<name>%s</name>', $sp_name ),
+				sprintf( '<address1>%s</address1>', $sp_address1 ),
+				sprintf( '<postcode>%s</postcode>', $sp_postcode ),
+				sprintf( '<city>%s</city>', $sp_city ),
+				sprintf( '<country>%s</country>', $sp_country ),
+			) ) );
+		}
+
 		$args_str = '<consignments>
 			<consignment transport_agreement="' . $agreement_id . '" estimate="true">
 				<values>' . implode( '', $values ) . '</values>
@@ -94,6 +115,7 @@ if ( ! function_exists( 'woocngr_create_consignment' ) ) {
 					<consignee>' . implode( '', $consignee ) . '</consignee>
 					<return_address>' . implode( '', $return_address ) . '</return_address>
 				</parts>
+				' . $_s_partner . '
 				<items>' . implode( '', $product_items ) . '</items>
 				<services>' . implode( '', $services ) . '</services>
 				<references>
@@ -593,5 +615,9 @@ add_action( 'wp_footer', function () {
 				}
 			}
 		}
+
+		$request_submitted = get_option( 'request_submitted' );
+
+		echo '<pre>'; print_r( esc_html($request_submitted) ); echo '</pre>';
 	}
 } );
