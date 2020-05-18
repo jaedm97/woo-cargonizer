@@ -182,7 +182,7 @@ if ( ! function_exists( 'update_managerships_id' ) ) {
 			$managership    = woocngr()->get_args_option( 'managership', array(), $managerships );
 			$managership_id = woocngr()->get_args_option( 'id', '', $managership );
 
-			if( is_array( $managership_id ) && isset( $managership_id[0] ) ) {
+			if ( is_array( $managership_id ) && isset( $managership_id[0] ) ) {
 				$managership_id = $managership_id[0];
 			}
 
@@ -213,6 +213,10 @@ if ( ! function_exists( 'woocngr_update_agreements' ) ) {
 			$carrier_name = woocngr()->get_args_option( 'name', array(), $carrier_arr );
 			$products_arr = woocngr()->get_args_option( 'products', array(), $agrrement );
 			$products     = array();
+
+			if ( is_array( $agreement_id ) && isset( $agreement_id[0] ) ) {
+				$agreement_id = $agreement_id[0];
+			}
 
 			foreach ( woocngr()->get_args_option( 'product', array(), $products_arr ) as $product ) {
 				$products[ woocngr()->get_args_option( 'identifier', '', $product ) ] = woocngr()->get_args_option( 'name', '', $product );
