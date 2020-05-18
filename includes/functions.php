@@ -49,13 +49,12 @@ if ( ! function_exists( 'woocngr_create_consignment' ) ) {
 		$consignee[]        = sprintf( '<country>%s</country>', $order->get_shipping_country() );
 		$consignee[]        = sprintf( '<mobile>%s</mobile>', $order->get_billing_phone() );
 		$consignee[]        = sprintf( '<contact-person>%s %s </contact-person>', $order->get_shipping_first_name(), $order->get_shipping_last_name() );
-		$return_address[]   = sprintf( '<name>Company Inc5.</name>' );
-		$return_address[]   = sprintf( '<address1>Street 5</address1>' );
-		$return_address[]   = sprintf( '<postcode>1337</postcode>' );
-		$return_address[]   = sprintf( '<city>Sandvika</city>' );
-		$return_address[]   = sprintf( '<country>NO</country>' );
-		$return_address[]   = sprintf( '<mobile>98989898</mobile>' );
-		$return_address[]   = sprintf( '<contact-person>Juan</contact-person>' );
+		$return_address[]   = sprintf( '<name>%s</name>', woocngr()->get_option( 'woocngr_address_name' ) );
+		$return_address[]   = sprintf( '<address1>%s</address1>', woocngr()->get_option( 'woocngr_address_1' ) );
+		$return_address[]   = sprintf( '<address2>%s</address2>', woocngr()->get_option( 'woocngr_address_2' ) );
+		$return_address[]   = sprintf( '<postcode>%s</postcode>', woocngr()->get_option( 'woocngr_address_zip' ) );
+		$return_address[]   = sprintf( '<city>%s</city>', woocngr()->get_option( 'woocngr_address_city' ) );
+		$return_address[]   = sprintf( '<country>%s</country>', woocngr()->get_option( 'woocngr_address_country' ) );
 		$services[]         = sprintf( '<service id="insurance"><currency>%s</currency><amount>%s</amount></service>', get_woocommerce_currency(), $order->get_total() );
 		$create_shipping    = in_array( 'create_shipping', $order_settings ) ? 'true' : 'false';
 		$career_booking     = in_array( 'career_booking', $order_extra ) ? 'true' : 'false';
@@ -108,7 +107,6 @@ if ( ! function_exists( 'woocngr_create_consignment' ) ) {
 
 		update_option( 'request_submitted', $args_str );
 
-
 		$response = woocngr_get_curl_response( 'consignments', array( CURLOPT_POSTFIELDS => $args_str ), true );
 
 		if ( is_wp_error( $response ) ) {
@@ -137,6 +135,12 @@ if ( ! function_exists( 'woocngr_create_consignment' ) ) {
 		update_post_meta( $order_id, 'woocngr_consignment_response', $response );
 		update_post_meta( $order_id, 'woocngr_consignment_id', $consignment_id );
 		update_post_meta( $order_id, 'woocngr_consignment_number', $consignment_number );
+
+
+		/**
+		 * Hooks to control mail, printing and other stuffs
+		 */
+		do_action( 'woocngr_consignment_created', $consignment_id, $order_id, $response );
 
 		return true;
 	}
@@ -199,6 +203,32 @@ if ( ! function_exists( 'woocngr_update_agreements' ) ) {
 }
 
 
+if ( ! function_exists( 'woocngr_update_printers' ) ) {
+	/**
+	 * Update printers data and save into `woocngr_printers_data` in option table
+	 */
+	function woocngr_update_printers() {
+
+		if ( is_wp_error( $response = woocngr_get_curl_response( 'printers' ) ) ) {
+			return;
+		}
+
+		$printers  = array();
+		$_printers = woocngr()->get_args_option( 'printers', array(), $response );
+		$_printers = empty( $_printers ) ? array( woocngr()->get_args_option( 'printer', array(), $response ) ) : $_printers;
+
+		foreach ( $_printers as $printer ) {
+			if ( ! empty( $printer_id = woocngr()->get_args_option( 'id', '', $printer ) ) ) {
+				$printers[ $printer_id ] = woocngr()->get_args_option( 'name', '', $printer );
+			}
+		}
+
+		update_option( 'woocngr_printers_data', $_printers );
+		update_option( 'woocngr_printers', $printers );
+	}
+}
+
+
 if ( ! function_exists( 'woocngr_get_curl_response' ) ) {
 	/**
 	 * Get curl response from API
@@ -225,7 +255,7 @@ if ( ! function_exists( 'woocngr_get_curl_response' ) ) {
 		}
 
 		$default = array(
-			CURLOPT_URL            => woocngr()->get_curl_url( $endpoint ),
+			CURLOPT_URL            => woocngr()->get_args_option( 'url', woocngr()->get_curl_url( $endpoint ), $args ),
 			CURLOPT_RETURNTRANSFER => true,
 			CURLOPT_ENCODING       => "",
 			CURLOPT_MAXREDIRS      => 10,
@@ -237,7 +267,9 @@ if ( ! function_exists( 'woocngr_get_curl_response' ) ) {
 		);
 
 		foreach ( $args as $key => $value ) {
-			$default[ $key ] = $value;
+			if ( ! is_string( $key ) ) {
+				$default[ $key ] = $value;
+			}
 		}
 
 		$curl = curl_init();
@@ -441,9 +473,11 @@ if ( ! function_exists( 'woocngr_generate_products_list' ) ) {
 	/**
 	 * Generate products list
 	 *
+	 * @param bool $only_returns
+	 *
 	 * @return array
 	 */
-	function woocngr_generate_products_list() {
+	function woocngr_generate_products_list( $only_returns = false ) {
 
 		$transfer_agreement = woocngr()->get_option( 'woocngr_transfer_agreement', array() );
 		$agreements_data    = array();
@@ -456,17 +490,24 @@ if ( ! function_exists( 'woocngr_generate_products_list' ) ) {
 
 			foreach ( woocngr()->get_args_option( 'product', array(), $products_arr ) as $product ) {
 
-				$identifier = woocngr()->get_args_option( 'identifier', '', $product );
-				$services   = woocngr()->get_args_option( 'services', array(), $product );
-				$service    = woocngr()->get_args_option( 'service', array(), $services );
-				$data       = array(
+				$identifier   = woocngr()->get_args_option( 'identifier', '', $product );
+				$product_name = woocngr()->get_args_option( 'name', '', $product );
+				$services     = woocngr()->get_args_option( 'services', array(), $product );
+				$service      = woocngr()->get_args_option( 'service', array(), $services );
+				$data         = array(
 					woocngr()->get_args_option( 'name', array(), $carrier_arr ),
-					woocngr()->get_args_option( 'name', '', $product ),
+					$product_name,
 					woocngr()->get_args_option( 'number', '', $agrrement ),
 					woocngr()->get_args_option( 'name', array(), $service ),
 				);
 
-				if ( ! empty( $identifier ) ) {
+				if ( empty( $identifier ) ) {
+					continue;
+				}
+
+				if ( $only_returns && ( strpos( $identifier, 'return' ) !== false || strpos( $product_name, 'return' ) !== false ) ) {
+					$agreements_data[ $identifier . '-' . $agreement_id ] = implode( ' | ', array_filter( $data ) );
+				} else if ( ! $only_returns ) {
 					$agreements_data[ $identifier . '-' . $agreement_id ] = implode( ' | ', array_filter( $data ) );
 				}
 			}
@@ -477,8 +518,80 @@ if ( ! function_exists( 'woocngr_generate_products_list' ) ) {
 }
 
 
+if ( ! class_exists( 'woocngr_services_data' ) ) {
+	/**
+	 * Return services data
+	 *
+	 * @return array
+	 */
+	function woocngr_services_data() {
+		$agreement_data = get_option( 'woocngr_transfer_agreement' );
+		$data           = array();
+
+		foreach ( woocngr()->get_args_option( 'transport-agreement', array(), $agreement_data ) as $agreement ) {
+
+			$products    = woocngr()->get_args_option( 'products', array(), $agreement );
+			$all_product = woocngr()->get_args_option( 'product', array(), $products );
+
+			foreach ( $all_product as $product ) {
+
+				$p_identifier = woocngr()->get_args_option( 'identifier', '', $product );
+				$services     = woocngr()->get_args_option( 'services', array(), $product );
+				$services     = woocngr()->get_args_option( 'service', array(), $services );
+				$services     = isset( $services[0] ) ? $services : array( $services );
+				$_services    = array();
+
+				foreach ( $services as $service ) {
+					if ( empty( woocngr()->get_args_option( 'attributes', '', $service ) ) ) {
+						if ( ! empty( $s_identifier = woocngr()->get_args_option( 'identifier', '', $service ) ) ) {
+							$_services[ $s_identifier ] = woocngr()->get_args_option( 'name', '', $service );
+						}
+					}
+				}
+
+				if ( ! empty( $_services = array_filter( $_services ) ) ) {
+					$data[ $p_identifier ] = $_services;
+				}
+			}
+		}
+
+		return $data;
+	}
+}
+
+
 add_action( 'wp_footer', function () {
 	if ( isset( $_GET['debug'] ) && $_GET['debug'] === 'yes' ) {
 
+
+		$agreement_data = get_option( 'woocngr_transfer_agreement' );
+		$data           = array();
+
+		foreach ( woocngr()->get_args_option( 'transport-agreement', array(), $agreement_data ) as $agreement ) {
+
+			$products    = woocngr()->get_args_option( 'products', array(), $agreement );
+			$all_product = woocngr()->get_args_option( 'product', array(), $products );
+
+			foreach ( $all_product as $product ) {
+
+				$p_identifier = woocngr()->get_args_option( 'identifier', '', $product );
+				$services     = woocngr()->get_args_option( 'services', array(), $product );
+				$services     = woocngr()->get_args_option( 'service', array(), $services );
+				$services     = isset( $services[0] ) ? $services : array( $services );
+				$_services    = array();
+
+				foreach ( $services as $service ) {
+					if ( empty( woocngr()->get_args_option( 'attributes', '', $service ) ) ) {
+						if ( ! empty( $s_identifier = woocngr()->get_args_option( 'identifier', '', $service ) ) ) {
+							$_services[ $s_identifier ] = woocngr()->get_args_option( 'name', '', $service );
+						}
+					}
+				}
+
+				if ( ! empty( $_services = array_filter( $_services ) ) ) {
+					$data[ $p_identifier ] = $_services;
+				}
+			}
+		}
 	}
 } );

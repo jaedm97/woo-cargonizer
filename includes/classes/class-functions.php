@@ -176,7 +176,6 @@ if ( ! class_exists( 'WOOCNGR_Functions' ) ) {
 				);
 			}
 
-
 			$pages['woocngr-options'] = array(
 				'page_nav'      => esc_html__( 'API Settings', 'woo-cargonizer' ),
 				'page_settings' => array(
@@ -220,9 +219,133 @@ if ( ! class_exists( 'WOOCNGR_Functions' ) ) {
 							),
 						),
 					),
+					array(
+						'title'   => esc_html__( 'Return Address', 'woo-cargonizer' ),
+						'options' => array(
+							array(
+								'id'    => 'woocngr_address_name',
+								'title' => esc_html__( 'Name *', 'woo-cargonizer' ),
+								'type'  => 'text',
+							),
+							array(
+								'id'    => 'woocngr_address_1',
+								'title' => esc_html__( 'Address 1 *', 'woo-cargonizer' ),
+								'type'  => 'textarea',
+							),
+							array(
+								'id'    => 'woocngr_address_2',
+								'title' => esc_html__( 'Address 2', 'woo-cargonizer' ),
+								'type'  => 'textarea',
+							),
+							array(
+								'id'    => 'woocngr_address_zip',
+								'title' => esc_html__( 'Zip Code *', 'woo-cargonizer' ),
+								'type'  => 'text',
+							),
+							array(
+								'id'    => 'woocngr_address_city',
+								'title' => esc_html__( 'City *', 'woo-cargonizer' ),
+								'type'  => 'text',
+							),
+							array(
+								'id'    => 'woocngr_address_country',
+								'title' => esc_html__( 'Country *', 'woo-cargonizer' ),
+								'type'  => 'select2',
+								'args'  => WC()->countries->get_countries(),
+							),
+						),
+					),
 				),
 			);
 
+
+			$shipping_options = array();
+
+			foreach ( WC()->shipping()->get_shipping_methods() as $method_id => $method ) {
+
+				$shipping_options[] = array(
+					'id'      => 'woocngr_shi_product_' . $method_id,
+					'class'   => 'woocngr_shi_product_selection',
+					'title'   => $method->method_title,
+					'details' => esc_html__( 'Select product', 'woo-cargonizer' ),
+					'type'    => 'select',
+					'data'    => array(
+						'services' => json_encode( woocngr_services_data() ),
+					),
+					'args'    => woocngr_generate_products_list(),
+				);
+
+				$shipping_options[] = array(
+					'id'      => 'woocngr_shi_printer_' . $method_id,
+					'details' => esc_html__( 'Select a printer', 'woo-cargonizer' ),
+					'type'    => 'select',
+					'args'    => woocngr()->get_option( 'woocngr_printers', array() ),
+				);
+
+
+				$product_selected = $this->get_option( 'woocngr_shi_product_' . $method_id );
+				$product_selected = explode( '-', $product_selected );
+				$product_selected = isset( $product_selected[0] ) ? $product_selected[0] : '';
+				$services_all     = woocngr_services_data();
+				$services_all     = $this->get_args_option( $product_selected, array(), $services_all );
+
+				$shipping_options[] = array(
+					'id'      => 'woocngr_shi_services_' . $method_id,
+					'class'   => 'woocngr_shi_product_' . $method_id,
+					'details' => esc_html__( 'Select services you preferred', 'woo-cargonizer' ),
+					'type'    => 'checkbox',
+					'args'    => $services_all,
+				);
+			}
+
+
+			$pages['woocngr-printers'] = array(
+				'page_nav'      => esc_html__( 'Printers and Shipping', 'woo-cargonizer' ),
+				'page_settings' => array(
+					array(
+						'title'   => esc_html__( 'Printer Settings', 'woo-cargonizer' ),
+						'options' => array(
+							array(
+								'id'    => 'woocngr_printer_id',
+								'title' => esc_html__( 'Select a printer', 'woo-cargonizer' ),
+								'type'  => 'select',
+								'args'  => woocngr()->get_option( 'woocngr_printers', array() ),
+							),
+							array(
+								'id'      => 'woocngr_printer_opt',
+								'title'   => esc_html__( 'Shipping label', 'woo-cargonizer' ),
+								'type'    => 'radio',
+								'class'   => 'woocngr_printer_hide',
+								'args'    => array(
+									'upon_creation' => esc_html__( 'Upon creation of Consignment', 'woo-cargonizer' ),
+									'custom_time'   => esc_html__( 'Custom time. Specify in below field.', 'woo-cargonizer' ),
+								),
+								'default' => array( 'upon_creation' ),
+							),
+							array(
+								'id'            => 'woocngr_printer_time',
+								'class'         => 'woocngr_printer_hide',
+								'details'       => esc_html__( 'Specify custom time of printing shipping label', 'woo-cargonizer' ),
+								'type'          => 'timepicker',
+								'placeholder'   => '08:00 AM',
+								'field_options' => array(
+									'timeFormat' => 'h:mm p',
+									'interval'   => '30',
+									'minTime'    => '24:00am',
+									'maxTime'    => '23:59pm',
+									'dynamic'    => false,
+									'dropdown'   => true,
+									'scrollbar'  => true,
+								),
+							),
+						),
+					),
+					array(
+						'title'   => esc_html__( 'Shipping Settings', 'woo-cargonizer' ),
+						'options' => $shipping_options,
+					),
+				),
+			);
 
 			return apply_filters( 'woocngr_filters_settings_pages', $pages );
 		}

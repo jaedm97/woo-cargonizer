@@ -884,7 +884,6 @@ if ( ! class_exists( 'PB_Settings' ) ) {
 
 			?>
             <input type="text" <?php echo esc_attr( $disabled ); ?> <?php echo esc_attr( $required ); ?>
-
                    name="<?php echo esc_attr( $id ); ?>"
                    id="<?php echo esc_attr( $field_id ); ?>"
                    placeholder="<?php echo esc_attr( $placeholder ); ?>"

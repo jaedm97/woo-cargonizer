@@ -17,6 +17,16 @@ Admin css
     padding: 0 0 0 8px !important;
 }
 
+.ui-timepicker-standard a {
+    text-align: left;
+    padding: 4px 3px;
+    border-bottom: 1px solid #f1f1f1;
+}
+
+.woocngr_printer_hide {
+    display: none;
+}
+
 
 .woocngr-field-extra {
     font-size: 16px;
@@ -63,7 +73,6 @@ Admin css
 }
 
 
-
 .woocngr-shipping-return > div.button {
     display: inline-block;
     width: 100%;
@@ -76,8 +85,6 @@ Admin css
 .woocngr-shipping-return > div.button:first-child {
     margin-top: 10px;
 }
-
-
 
 
 .woocngr-popup-container {
@@ -123,7 +130,8 @@ Admin css
     justify-content: space-between;
 }
 
-select#woocngr_so_transport_product {
+select#woocngr_so_transport_product,
+select#woocngr_rs_product {
     display: inline-block;
     width: 100%;
 }

@@ -6,6 +6,62 @@
     "use strict";
 
 
+    $(document).on('change', '.woocngr_shi_product_selection select', function () {
+
+        let productSelection = $(this), newServiceSelections = [],
+            selectedProduct = productSelection.find(":selected").val().split('-'),
+            productID = selectedProduct[0],
+            servicesData = JSON.parse(productSelection.parent().find('.services_data').html().replace(/'/g, "")),
+            targetClass = productSelection.attr('id'),
+            fieldName = targetClass.replace('woocngr_shi_product_', 'woocngr_shi_services_'),
+            fieldSet = $('tr.' + targetClass).find('fieldset');
+
+        $.each(servicesData, function (product_id, product_services) {
+            if (product_id === productID) {
+                $.each(product_services, function (key, value) {
+                    newServiceSelections.push('<label for="woocngr_shi_services_' + key + '">' +
+                        '<input type="checkbox" id="woocngr_shi_services_' + key + '" name="' + fieldName + '[]" value="' + key + '">' +
+                        value + '</label>');
+                });
+            }
+        });
+
+        fieldSet.html(newServiceSelections.join('<br>'));
+    });
+
+
+    $(document).on('click', '.woocngr-btn-send', function () {
+
+        let sendButton = $(this),
+            orderID = sendButton.data('order_id'),
+            htmlPrev = sendButton.html();
+
+        sendButton.html(pluginObject.sendingText);
+
+        $.ajax({
+            type: 'POST',
+            context: this,
+            url: pluginObject.ajaxURL,
+            data: {
+                'action': 'woocngr_send_details',
+                'order_id': orderID,
+            },
+            success: function (response) {
+
+                if (response.success) {
+                    sendButton.html(pluginObject.sendingSuccessText);
+                    setTimeout(function () {
+                        sendButton.html(htmlPrev);
+                        location.reload();
+                    }, 500);
+                }
+            }
+        });
+
+        return false;
+    });
+
+
     $(document).on('click', '.woocngr-popup-send', function () {
 
         let sendButton = $(this),
@@ -43,12 +99,12 @@
 
 
     $(document).on('click', '.woocngr-popup-cancel', function () {
-        $('.woocngr-popup-container').fadeOut();
+        $(this).parent().parent().parent().fadeOut();
     });
 
 
-    $(document).on('click', '.woocngr-btn-shipping', function () {
-        $('.woocngr-popup-container').fadeIn();
+    $(document).on('click', '.woocngr-popup-opener', function () {
+        $('.woocngr-popup-container.' + $(this).data('target')).fadeIn();
     });
 
 

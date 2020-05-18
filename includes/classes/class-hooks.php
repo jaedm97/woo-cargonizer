@@ -27,6 +27,38 @@ if ( ! class_exists( 'WOOCNGR_Hooks' ) ) {
 			add_action( 'wp_ajax_woocngr_override_send', array( $this, 'override_send' ) );
 
 			add_action( 'add_meta_boxes', array( $this, 'add_meta_boxes' ) );
+			add_action( 'woocngr_consignment_created', array( $this, 'printing_labels' ), 10, 3 );
+		}
+
+
+		/**
+		 * Sending label to a printer
+		 *
+		 * @param $consignment_id
+		 * @param $order_id
+		 * @param $response
+		 */
+		function printing_labels( $consignment_id, $order_id, $response ) {
+
+			if ( empty( $printer_id = woocngr()->get_option( 'woocngr_printer_id' ) ) ) {
+				return;
+			}
+
+			$printer_opt  = woocngr()->get_option( 'woocngr_printer_opt', array( 'upon_creation' ) );
+			$printer_opt  = is_array( $printer_opt ) ? $printer_opt : array();
+			$printer_time = woocngr()->get_option( 'woocngr_printer_time' );
+
+			if ( ! in_array( 'upon_creation', $printer_opt ) ) {
+				return;
+			}
+
+			$args     = array(
+				'url' => sprintf( '%sconsignments/label_direct?%s', woocngr()->base_url, http_build_query( array(
+					'printer_id'      => $printer_id,
+					'consignment_ids' => array( $consignment_id ),
+				) ) ),
+			);
+			$response = woocngr_get_curl_response( '', $args );
 		}
 
 
@@ -82,7 +114,7 @@ if ( ! class_exists( 'WOOCNGR_Hooks' ) ) {
 			);
 
 			if ( ! woocngr_create_consignment( $order_id, $override_args ) ) {
-				wp_send_json_error( esc_html__( 'Error occured!', WOOCNGR_TD ) );
+				wp_send_json_error( esc_html__( 'Error occured in sending!', WOOCNGR_TD ) );
 			}
 
 			wp_send_json_success();
@@ -165,6 +197,14 @@ if ( ! class_exists( 'WOOCNGR_Hooks' ) ) {
 				woocngr_update_agreements();
 			}
 
+			/**
+			 * Get Printers
+			 */
+			if ( $api_for === 'woocngr_printer_id' ) {
+				woocngr_update_printers();
+			}
+
+
 			wp_safe_redirect( woocngr()->get_request_url( $query_args, false ) );
 		}
 
@@ -188,6 +228,17 @@ if ( ! class_exists( 'WOOCNGR_Hooks' ) ) {
 					woocngr()->get_request_url( array( 'api_for' => 'woocngr_managerships_id' ) ),
 					esc_html__( 'Get ID automatically from API', WOOCNGR_TD )
 				);
+			}
+
+			if ( woocngr()->get_args_option( 'id', '', $option ) === 'woocngr_printer_id' ) {
+				printf( '<a href="%s" class="woocngr-field-extra"><span class="dashicons dashicons-image-rotate"></span> %s</a>',
+					woocngr()->get_request_url( array( 'api_for' => 'woocngr_printer_id' ) ),
+					esc_html__( 'Get printers from API', WOOCNGR_TD )
+				);
+			}
+
+			if ( woocngr()->get_args_option( 'class', '', $option ) === 'woocngr_shi_product_selection' ) {
+				printf( '<script class="services_data">\'%s\'</script>', json_encode( woocngr_services_data() ) );
 			}
 		}
 
