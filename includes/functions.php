@@ -276,8 +276,9 @@ if ( ! function_exists( 'woocngr_get_curl_response' ) ) {
 			$headers[] = sprintf( 'X-Cargonizer-Sender: %s', woocngr()->managership_id );
 		}
 
-		$default = array(
-			CURLOPT_URL            => woocngr()->get_args_option( 'url', woocngr()->get_curl_url( $endpoint ), $args ),
+		$curl_url = woocngr()->get_args_option( 'url', woocngr()->get_curl_url( $endpoint ), $args );
+		$default  = array(
+			CURLOPT_URL            => $curl_url,
 			CURLOPT_RETURNTRANSFER => true,
 			CURLOPT_ENCODING       => "",
 			CURLOPT_MAXREDIRS      => 10,
@@ -303,6 +304,12 @@ if ( ! function_exists( 'woocngr_get_curl_response' ) ) {
 		$response = json_decode( json_encode( (array) simplexml_load_string( $response ) ), true );
 		$response = is_array( $response ) ? $response : array();
 		$error    = woocngr()->get_args_option( 'error', '', $response );
+
+		update_option( 'woocngr_debug_last_response', array(
+			'url'      => $curl_url,
+			'response' => $response,
+			'error'    => $error,
+		) );
 
 		if ( ! empty( $error ) ) {
 			return new WP_Error( 'api_error', $error );
@@ -585,39 +592,13 @@ if ( ! class_exists( 'woocngr_services_data' ) ) {
 add_action( 'wp_footer', function () {
 	if ( isset( $_GET['debug'] ) && $_GET['debug'] === 'yes' ) {
 
-
-		$agreement_data = get_option( 'woocngr_transfer_agreement' );
-		$data           = array();
-
-		foreach ( woocngr()->get_args_option( 'transport-agreement', array(), $agreement_data ) as $agreement ) {
-
-			$products    = woocngr()->get_args_option( 'products', array(), $agreement );
-			$all_product = woocngr()->get_args_option( 'product', array(), $products );
-
-			foreach ( $all_product as $product ) {
-
-				$p_identifier = woocngr()->get_args_option( 'identifier', '', $product );
-				$services     = woocngr()->get_args_option( 'services', array(), $product );
-				$services     = woocngr()->get_args_option( 'service', array(), $services );
-				$services     = isset( $services[0] ) ? $services : array( $services );
-				$_services    = array();
-
-				foreach ( $services as $service ) {
-					if ( empty( woocngr()->get_args_option( 'attributes', '', $service ) ) ) {
-						if ( ! empty( $s_identifier = woocngr()->get_args_option( 'identifier', '', $service ) ) ) {
-							$_services[ $s_identifier ] = woocngr()->get_args_option( 'name', '', $service );
-						}
-					}
-				}
-
-				if ( ! empty( $_services = array_filter( $_services ) ) ) {
-					$data[ $p_identifier ] = $_services;
-				}
-			}
+		/**
+		 * Display any option value
+		 */
+		if ( ! empty( $opt_id = woocngr()->get_args_option( 'opt_id', '', wp_unslash( $_GET ) ) ) ) {
+			echo '<pre>';
+			print_r( woocngr()->get_option( $opt_id ) );
+			echo '</pre>';
 		}
-
-		$request_submitted = get_option( 'request_submitted' );
-
-		echo '<pre>'; print_r( esc_html($request_submitted) ); echo '</pre>';
 	}
 } );
