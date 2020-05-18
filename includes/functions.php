@@ -178,10 +178,15 @@ if ( ! function_exists( 'update_managerships_id' ) ) {
 
 			update_option( 'woocngr_profile', $response );
 
-			$managerships = woocngr()->get_args_option( 'managerships', array(), $response );
-			$managership  = woocngr()->get_args_option( 'managership', array(), $managerships );
+			$managerships   = woocngr()->get_args_option( 'managerships', array(), $response );
+			$managership    = woocngr()->get_args_option( 'managership', array(), $managerships );
+			$managership_id = woocngr()->get_args_option( 'id', '', $managership );
 
-			update_option( 'woocngr_managerships_id', woocngr()->get_args_option( 'id', '', $managership ) );
+			if( is_array( $managership_id ) && isset( $managership_id[0] ) ) {
+				$managership_id = $managership_id[0];
+			}
+
+			update_option( 'woocngr_managerships_id', $managership_id );
 		}
 	}
 }
