@@ -119,9 +119,6 @@ if ( ! function_exists( 'woocngr_create_consignment' ) ) {
 				<items>' . implode( '', $product_items ) . '</items>
 				<services>' . implode( '', $services ) . '</services>
 				<references>
-					<consignee>' . $order_id . '</consignee>
-				</references>
-				<references>
 					<consignor>Order ID: ' . $order_id . '</consignor>
 					<consignee>Order ID: ' . $order_id . '</consignee>
 				</references>
