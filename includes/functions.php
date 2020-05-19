@@ -121,10 +121,10 @@ if ( ! function_exists( 'woocngr_create_consignment' ) ) {
 				<references>
 					<consignee>' . $order_id . '</consignee>
 				</references>
-				<messages>
+				<references>
 					<consignor>Order ID: ' . $order_id . '</consignor>
 					<consignee>Order ID: ' . $order_id . '</consignee>
-				</messages>
+				</references>
 			</consignment>
 		</consignments>';
 
