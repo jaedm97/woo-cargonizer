@@ -3,8 +3,8 @@
  * Plugin Name: Cargonizer integration for WooCommerce
  * Plugin URI: https://jaed.pro/
  * Description: Integrate your store with Cargonizer
- * Version: 1.0.0
- * Author: Pluginbazar
+ * Version: 1.0.1
+ * Author: Jaed Mosharraf
  * Text Domain: woo-cargonizer
  * Domain Path: /languages/
  * Author URI: https://jaed.pro/
