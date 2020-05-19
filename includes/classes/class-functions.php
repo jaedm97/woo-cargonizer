@@ -281,7 +281,7 @@ if ( ! class_exists( 'WOOCNGR_Functions' ) ) {
 					$shipping_options[] = array(
 						'id'      => $woocngr_shi_product,
 						'class'   => 'woocngr_shi_product_selection',
-						'title'   => sprintf( '%s | %s', $zone_name, $method->method_title ),
+						'title'   => sprintf( '%s | %s', $zone_name, $method->title ),
 						'details' => esc_html__( 'Select product', 'woo-cargonizer' ),
 						'type'    => 'select',
 						'data'    => array(
