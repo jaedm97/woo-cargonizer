@@ -320,7 +320,7 @@ if ( ! function_exists( 'woocngr_get_curl_response' ) ) {
 
 		update_option( 'woocngr_debug_last_response', array(
 			'url'      => $curl_url,
-			'request'  => esc_html( $default ),
+			'request'  => $default,
 			'response' => $response,
 			'error'    => $error,
 		) );
