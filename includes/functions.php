@@ -251,11 +251,9 @@ if ( ! function_exists( 'woocngr_update_printers' ) ) {
 
 		foreach ( $_printers as $printer ) {
 			if ( ! empty( $printer_id = woocngr()->get_args_option( 'id', '', $printer ) ) ) {
-
 				if ( is_array( $printer_id ) && isset( $printer_id[0] ) ) {
 					$printer_id = $printer_id[0];
 				}
-
 				$printers[ $printer_id ] = woocngr()->get_args_option( 'name', '', $printer );
 			}
 		}
