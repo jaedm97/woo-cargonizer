@@ -122,7 +122,8 @@ if ( ! function_exists( 'woocngr_create_consignment' ) ) {
 					<consignee>' . $order_id . '</consignee>
 				</references>
 				<messages>
-					<consignee>' . $order->get_customer_note() . '</consignee>
+					<consignor>Order ID: ' . $order_id . '</consignor>
+					<consignee>Order ID: ' . $order_id . '</consignee>
 				</messages>
 			</consignment>
 		</consignments>';

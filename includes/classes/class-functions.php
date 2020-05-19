@@ -267,11 +267,11 @@ if ( ! class_exists( 'WOOCNGR_Functions' ) ) {
 				$zone_name        = woocngr()->get_args_option( 'zone_name', '', $zone );
 				$shipping_methods = woocngr()->get_args_option( 'shipping_methods', array(), $zone );
 
-				foreach ( $shipping_methods as $method ) {
+				foreach ( $shipping_methods as $index => $method ) {
 
-					$woocngr_shi_product  = sprintf( 'woocngr_shi_product_%s_%s', $zone_id, $method->id );
-					$woocngr_shi_printer  = sprintf( 'woocngr_shi_printer_%s_%s', $zone_id, $method->id );
-					$woocngr_shi_services = sprintf( 'woocngr_shi_services_%s_%s', $zone_id, $method->id );
+					$woocngr_shi_product  = sprintf( 'woocngr_shi_product_%s_%s_%s', $zone_id, $method->id, $index );
+					$woocngr_shi_printer  = sprintf( 'woocngr_shi_printer_%s_%s_%s', $zone_id, $method->id, $index );
+					$woocngr_shi_services = sprintf( 'woocngr_shi_services_%s_%s_%s', $zone_id, $method->id, $index );
 					$product_selected     = $this->get_option( $woocngr_shi_product );
 					$product_selected     = explode( '-', $product_selected );
 					$product_selected     = isset( $product_selected[0] ) ? $product_selected[0] : '';
@@ -349,6 +349,29 @@ if ( ! class_exists( 'WOOCNGR_Functions' ) ) {
 					array(
 						'title'   => esc_html__( 'Shipping Settings', 'woo-cargonizer' ),
 						'options' => $shipping_options,
+					),
+				),
+			);
+
+			$pages['woocngr-buttons'] = array(
+				'page_nav'      => esc_html__( 'Button Settings', 'woo-cargonizer' ),
+				'page_settings' => array(
+					array(
+						'title'   => esc_html__( 'Override Products', 'woo-cargonizer' ),
+						'options' => array(
+							array(
+								'id'    => 'woocngr_pro_btn1',
+								'title' => esc_html__( 'Product for 1st Button', 'woo-cargonizer' ),
+								'type'  => 'select',
+								'args'  => woocngr_generate_products_list(),
+							),
+							array(
+								'id'    => 'woocngr_pro_btn2',
+								'title' => esc_html__( 'Product for 2nd Button', 'woo-cargonizer' ),
+								'type'  => 'select',
+								'args'  => woocngr_generate_products_list(),
+							),
+						),
 					),
 				),
 			);

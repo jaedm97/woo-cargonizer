@@ -53,12 +53,12 @@ Admin css
     display: table-row;
 }
 
-.woocngr-send-details {
+.woocngr-btn-send {
     background: #252525;
     color: #fff !important;
-    padding: 10px 30px;
+    padding: 8px 12px;
     border-radius: 3px;
-    font-size: 13px;
+    font-size: 12px;
     text-transform: uppercase;
     line-height: 26px;
     text-decoration: none !important;
@@ -66,9 +66,10 @@ Admin css
     box-shadow: none !important;
     transition: 0.3s;
     display: inline;
+    margin-right: 5px;
 }
 
-.woocngr-send-details:hover {
+.woocngr-btn-send:hover {
     background: #2b9e30;
 }
 

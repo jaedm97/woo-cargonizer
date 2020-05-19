@@ -245,7 +245,9 @@ if ( ! class_exists( 'WOOCNGR_Hooks' ) ) {
 		function columns_content( $column, $post_id ) {
 
 			if ( $column === 'woocngr-send' ) {
-				printf( '<div class="woocngr-send-details" data-order_id="%s">%s</div>', $post_id, esc_html__( 'Send', WOOCNGR_TD ) );
+				printf( '<div class="woocngr-btn-send woocngr-send-details" data-order_id="%s">%s</div>', $post_id, esc_html__( 'Send', WOOCNGR_TD ) );
+				printf( '<div class="woocngr-btn-send woocngr-send-btn" data-btn="small" data-order_id="%s">%s</div>', $post_id, esc_html__( 'Large', WOOCNGR_TD ) );
+				printf( '<div class="woocngr-btn-send woocngr-send-btn" data-btn="small" data-order_id="%s">%s</div>', $post_id, esc_html__( 'Small', WOOCNGR_TD ) );
 			}
 		}
 
