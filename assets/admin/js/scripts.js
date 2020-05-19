@@ -38,27 +38,27 @@
             btnType = sendButton.data('btn_type'),
             htmlPrev = sendButton.html();
 
-        sendButton.html(pluginObject.sendingText);
+        // sendButton.html(pluginObject.sendingText);
 
-        $.ajax({
-            type: 'POST',
-            context: this,
-            url: pluginObject.ajaxURL,
-            data: {
-                'action': 'woocngr_send_details',
-                'order_id': orderID,
-                'btn_type': btnType,
-            },
-            success: function (response) {
-                if (response.success) {
-                    sendButton.html(pluginObject.sendingSuccessText);
-                    setTimeout(function () {
-                        sendButton.html(htmlPrev);
-                        location.reload();
-                    }, 500);
-                }
-            }
-        });
+        // $.ajax({
+        //     type: 'POST',
+        //     context: this,
+        //     url: pluginObject.ajaxURL,
+        //     data: {
+        //         'action': 'woocngr_send_details',
+        //         'order_id': orderID,
+        //         'btn_type': btnType,
+        //     },
+        //     success: function (response) {
+        //         if (response.success) {
+        //             sendButton.html(pluginObject.sendingSuccessText);
+        //             setTimeout(function () {
+        //                 sendButton.html(htmlPrev);
+        //                 location.reload();
+        //             }, 500);
+        //         }
+        //     }
+        // });
 
         return false;
     });
