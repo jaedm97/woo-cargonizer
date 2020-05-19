@@ -360,14 +360,14 @@ if ( ! class_exists( 'WOOCNGR_Functions' ) ) {
 						'title'   => esc_html__( 'Override Products', 'woo-cargonizer' ),
 						'options' => array(
 							array(
-								'id'    => 'woocngr_pro_btn1',
-								'title' => esc_html__( 'Product for 1st Button', 'woo-cargonizer' ),
+								'id'    => 'woocngr_btn_large',
+								'title' => esc_html__( 'Product for Large Button', 'woo-cargonizer' ),
 								'type'  => 'select',
 								'args'  => woocngr_generate_products_list(),
 							),
 							array(
-								'id'    => 'woocngr_pro_btn2',
-								'title' => esc_html__( 'Product for 2nd Button', 'woo-cargonizer' ),
+								'id'    => 'woocngr_btn_small',
+								'title' => esc_html__( 'Product for Small Button', 'woo-cargonizer' ),
 								'type'  => 'select',
 								'args'  => woocngr_generate_products_list(),
 							),
