@@ -65,6 +65,7 @@ if ( ! function_exists( 'woocngr_create_consignment' ) ) {
 			$values[] = sprintf( '<value name="provider" value="%s" />', woocngr()->get_args_option( 'name', '', $sender ) );
 		}
 
+
 		foreach ( $order->get_items() as $order_item ) {
 			if ( $order_item instanceof WC_Order_Item_Product ) {
 
@@ -82,7 +83,6 @@ if ( ! function_exists( 'woocngr_create_consignment' ) ) {
 			}
 		}
 
-
 		/**
 		 * Set product and agreement ID from available shipping methods
 		 */
@@ -98,8 +98,8 @@ if ( ! function_exists( 'woocngr_create_consignment' ) ) {
 			$shi_product  = woocngr()->get_option( sprintf( 'woocngr_shi_product_%s_%s_%s', $zone_id, $method_id, $instance_id ) );
 			$shi_product  = explode( '-', $shi_product );
 			$shi_product  = array_map( 'trim', $shi_product );
-			$product_id   = isset( $shi_product[0] ) ? $shi_product[0] : $product_id;
-			$agreement_id = isset( $shi_product[1] ) ? $shi_product[1] : $agreement_id;
+			$product_id   = isset( $shi_product[0] ) && ! empty( $shi_product[0] ) ? $shi_product[0] : $product_id;
+			$agreement_id = isset( $shi_product[1] ) && ! empty( $shi_product[1] ) ? $shi_product[1] : $agreement_id;
 
 			$shi_services = woocngr()->get_option( sprintf( 'woocngr_shi_services_%s_%s_%s', $zone_id, $method_id, $instance_id ), array() );
 			$shi_services = empty( $shi_services ) ? array() : $shi_services;
@@ -108,7 +108,6 @@ if ( ! function_exists( 'woocngr_create_consignment' ) ) {
 				$services[] = sprintf( '<service id="%s">true</service>', $service );
 			}
 		}
-
 
 		/**
 		 * Override product and agreement id from args
@@ -121,7 +120,7 @@ if ( ! function_exists( 'woocngr_create_consignment' ) ) {
 		/**
 		 * Override product and agreement ID from extra buttons | Large case
 		 */
-		if ( $btn_type === 'large' ) {
+		if ( $btn_type == 'large' ) {
 			$large_services = woocngr()->get_option( 'woocngr_btn_large_services', array() );
 			$large_services = is_array( $large_services ) ? $large_services : array();
 			$large_product  = woocngr()->get_option( 'woocngr_btn_large_product' );
@@ -139,7 +138,7 @@ if ( ! function_exists( 'woocngr_create_consignment' ) ) {
 		/**
 		 * Override product and agreement ID from extra buttons | Small case
 		 */
-		if ( $btn_type === 'small' ) {
+		if ( $btn_type == 'small' ) {
 			$small_services = woocngr()->get_option( 'woocngr_btn_small_services', array() );
 			$small_services = is_array( $small_services ) ? $small_services : array();
 			$small_product  = woocngr()->get_option( 'woocngr_btn_small_product' );
@@ -198,13 +197,6 @@ if ( ! function_exists( 'woocngr_create_consignment' ) ) {
 		</consignments>';
 
 		update_option( 'request_submitted', $args_str );
-
-		echo '<pre>';
-		print_r( esc_html( $args_str ) );
-		echo '</pre>';
-
-		die();
-
 
 		$response = woocngr_get_curl_response( 'consignments', array( CURLOPT_POSTFIELDS => $args_str ), true );
 
@@ -705,8 +697,11 @@ add_action( 'wp_footer', function () {
 	if ( isset( $_GET['debug'] ) && $_GET['debug'] === 'yes' ) {
 
 
-		woocngr_create_consignment( 62 );
-
+//		$response = woocngr_create_consignment( 58, array( 'btn_type' => 'large' ) );
+//
+//		echo '<pre>';
+//		var_dump( $response );
+//		echo '</pre>';
 
 		/**
 		 * Display any option value

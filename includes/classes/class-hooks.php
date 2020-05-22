@@ -224,16 +224,22 @@ if ( ! class_exists( 'WOOCNGR_Hooks' ) ) {
 		function send_details() {
 
 			$order_id = (int) woocngr()->get_args_option( 'order_id', '', wp_unslash( $_POST ) );
-			$btn_type = (int) woocngr()->get_args_option( 'btn_type', '', wp_unslash( $_POST ) );
+			$btn_type = woocngr()->get_args_option( 'btn_type', '', wp_unslash( $_POST ) );
+			$args     = array();
 
 			if ( empty( $order_id ) || ! is_int( $order_id ) ) {
 				wp_send_json_error( esc_html__( 'Error occured!', WOOCNGR_TD ) );
 			}
 
+			if ( ! empty( $btn_type ) && in_array( $btn_type, array( 'small', 'large' ) ) ) {
+				$args['btn_type'] = $btn_type;
+			}
 
-			if ( woocngr_create_consignment( $order_id, array( 'btn_type' => $btn_type ) ) ) {
+			if ( woocngr_create_consignment( $order_id, $args ) ) {
 				wp_send_json_success();
 			}
+
+			wp_send_json_error( esc_html__( 'Error occured in sending!', WOOCNGR_TD ) );
 		}
 
 
