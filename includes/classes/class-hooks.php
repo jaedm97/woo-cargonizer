@@ -224,13 +224,14 @@ if ( ! class_exists( 'WOOCNGR_Hooks' ) ) {
 		function send_details() {
 
 			$order_id = (int) woocngr()->get_args_option( 'order_id', '', wp_unslash( $_POST ) );
-
+			$btn_type = (int) woocngr()->get_args_option( 'btn_type', '', wp_unslash( $_POST ) );
 
 			if ( empty( $order_id ) || ! is_int( $order_id ) ) {
 				wp_send_json_error( esc_html__( 'Error occured!', WOOCNGR_TD ) );
 			}
 
-			if ( woocngr_create_consignment( $order_id ) ) {
+
+			if ( woocngr_create_consignment( $order_id, array( 'btn_type' => $btn_type ) ) ) {
 				wp_send_json_success();
 			}
 		}
@@ -336,7 +337,11 @@ if ( ! class_exists( 'WOOCNGR_Hooks' ) ) {
 				);
 			}
 
-			if ( woocngr()->get_args_option( 'class', '', $option ) === 'woocngr_shi_product_selection' ) {
+			if ( in_array( woocngr()->get_args_option( 'class', '', $option ), array(
+				'woocngr_shi_product_selection',
+				'woocngr_btn_large_product_selection',
+				'woocngr_btn_small_product_selection',
+			) ) ) {
 				printf( '<script class="services_data">\'%s\'</script>', json_encode( woocngr_services_data() ) );
 			}
 		}

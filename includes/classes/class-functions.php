@@ -193,6 +193,13 @@ if ( ! class_exists( 'WOOCNGR_Functions' ) ) {
 						'title'   => esc_html__( 'General Settings', 'woo-cargonizer' ),
 						'options' => array(
 							array(
+								'id'          => 'woocngr_shop_name',
+								'title'       => esc_html__( 'Shop name', 'woo-cargonizer' ),
+								'details'     => esc_html__( 'Please specify your WooCommerce store or shop name here.', 'woo-cargonizer' ),
+								'type'        => 'text',
+								'placeholder' => get_bloginfo( 'name' ),
+							),
+							array(
 								'id'    => 'woocngr_order_settings',
 								'title' => esc_html__( 'Order Settings', 'woo-cargonizer' ),
 								'type'  => 'checkbox',
@@ -284,9 +291,6 @@ if ( ! class_exists( 'WOOCNGR_Functions' ) ) {
 						'title'   => sprintf( '%s | %s', $zone_name, $method->title ),
 						'details' => esc_html__( 'Select product', 'woo-cargonizer' ),
 						'type'    => 'select',
-						'data'    => array(
-							'services' => json_encode( woocngr_services_data() ),
-						),
 						'args'    => woocngr_generate_products_list(),
 					);
 					$shipping_options[] = array(
@@ -353,23 +357,69 @@ if ( ! class_exists( 'WOOCNGR_Functions' ) ) {
 				),
 			);
 
+
+			$large_product  = $this->get_option( 'woocngr_btn_large_product' );
+			$large_product  = explode( '-', $large_product );
+			$large_product  = isset( $large_product[0] ) ? $large_product[0] : '';
+			$large_services = woocngr_services_data();
+			$large_services = $this->get_args_option( $large_product, array(), $large_services );
+
+			$small_product  = $this->get_option( 'woocngr_btn_small_product' );
+			$small_product  = explode( '-', $small_product );
+			$small_product  = isset( $small_product[0] ) ? $small_product[0] : '';
+			$small_services = woocngr_services_data();
+			$small_services = $this->get_args_option( $small_product, array(), $small_services );
+
 			$pages['woocngr-buttons'] = array(
 				'page_nav'      => esc_html__( 'Button Settings', 'woo-cargonizer' ),
 				'page_settings' => array(
 					array(
-						'title'   => esc_html__( 'Override Products', 'woo-cargonizer' ),
+						'title'   => esc_html__( 'Large Button Settings', 'woo-cargonizer' ),
 						'options' => array(
 							array(
-								'id'    => 'woocngr_btn_large',
+								'id'    => 'woocngr_btn_large_product',
+								'class' => 'woocngr_btn_large_product_selection',
 								'title' => esc_html__( 'Product for Large Button', 'woo-cargonizer' ),
 								'type'  => 'select',
 								'args'  => woocngr_generate_products_list(),
 							),
 							array(
-								'id'    => 'woocngr_btn_small',
+								'id'      => 'woocngr_btn_large_printer',
+								'details' => esc_html__( 'Select a printer', 'woo-cargonizer' ),
+								'type'    => 'select',
+								'args'    => woocngr()->get_option( 'woocngr_printers', array() ),
+							),
+							array(
+								'id'      => 'woocngr_btn_large_services',
+								'class'   => 'woocngr_btn_large_product',
+								'details' => esc_html__( 'Select services you preferred', 'woo-cargonizer' ),
+								'type'    => 'checkbox',
+								'args'    => $large_services,
+							),
+						),
+					),
+					array(
+						'title'   => esc_html__( 'Small Button Settings', 'woo-cargonizer' ),
+						'options' => array(
+							array(
+								'id'    => 'woocngr_btn_small_product',
+								'class' => 'woocngr_btn_small_product_selection',
 								'title' => esc_html__( 'Product for Small Button', 'woo-cargonizer' ),
 								'type'  => 'select',
 								'args'  => woocngr_generate_products_list(),
+							),
+							array(
+								'id'      => 'woocngr_btn_small_printer',
+								'details' => esc_html__( 'Select a printer', 'woo-cargonizer' ),
+								'type'    => 'select',
+								'args'    => woocngr()->get_option( 'woocngr_printers', array() ),
+							),
+							array(
+								'id'      => 'woocngr_btn_small_services',
+								'class'   => 'woocngr_btn_small_product',
+								'details' => esc_html__( 'Select services you preferred', 'woo-cargonizer' ),
+								'type'    => 'checkbox',
+								'args'    => $small_services,
 							),
 						),
 					),

@@ -6,6 +6,54 @@
     "use strict";
 
 
+    $(document).on('change', '.woocngr_btn_small_product_selection select', function () {
+
+        let productSelection = $(this), newServiceSelections = [],
+            selectedProduct = productSelection.find(":selected").val().split('-'),
+            productID = selectedProduct[0],
+            servicesData = JSON.parse(productSelection.parent().find('.services_data').html().replace(/'/g, "")),
+            targetClass = productSelection.attr('id'),
+            fieldSet = $('tr.' + targetClass).find('fieldset');
+
+        $.each(servicesData, function (product_id, product_services) {
+            if (product_id === productID) {
+                $.each(product_services, function (key, value) {
+                    let uniqueIdenfier = key + '_' + Math.floor(Math.random() * 1000);
+                    newServiceSelections.push('<label for="woocngr_btn_small_services' + uniqueIdenfier + '">' +
+                        '<input type="checkbox" id="woocngr_btn_small_services' + uniqueIdenfier + '" name="woocngr_btn_small_services[]" value="' + key + '">' +
+                        value + '</label>');
+                });
+            }
+        });
+
+        fieldSet.html(newServiceSelections.join('<br>'));
+    });
+
+
+    $(document).on('change', '.woocngr_btn_large_product_selection select', function () {
+
+        let productSelection = $(this), newServiceSelections = [],
+            selectedProduct = productSelection.find(":selected").val().split('-'),
+            productID = selectedProduct[0],
+            servicesData = JSON.parse(productSelection.parent().find('.services_data').html().replace(/'/g, "")),
+            targetClass = productSelection.attr('id'),
+            fieldSet = $('tr.' + targetClass).find('fieldset');
+
+        $.each(servicesData, function (product_id, product_services) {
+            if (product_id === productID) {
+                $.each(product_services, function (key, value) {
+                    let uniqueIdenfier = key + '_' + Math.floor(Math.random() * 1000);
+                    newServiceSelections.push('<label for="woocngr_btn_large_services' + uniqueIdenfier + '">' +
+                        '<input type="checkbox" id="woocngr_btn_large_services' + uniqueIdenfier + '" name="woocngr_btn_large_services[]" value="' + key + '">' +
+                        value + '</label>');
+                });
+            }
+        });
+
+        fieldSet.html(newServiceSelections.join('<br>'));
+    });
+
+
     $(document).on('change', '.woocngr_shi_product_selection select', function () {
 
         let productSelection = $(this), newServiceSelections = [],
@@ -38,30 +86,31 @@
             btnType = sendButton.data('btn_type'),
             htmlPrev = sendButton.html();
 
-        // sendButton.html(pluginObject.sendingText);
+        sendButton.html(pluginObject.sendingText);
 
-        // $.ajax({
-        //     type: 'POST',
-        //     context: this,
-        //     url: pluginObject.ajaxURL,
-        //     data: {
-        //         'action': 'woocngr_send_details',
-        //         'order_id': orderID,
-        //         'btn_type': btnType,
-        //     },
-        //     success: function (response) {
-        //         if (response.success) {
-        //             sendButton.html(pluginObject.sendingSuccessText);
-        //             setTimeout(function () {
-        //                 sendButton.html(htmlPrev);
-        //                 location.reload();
-        //             }, 500);
-        //         }
-        //     }
-        // });
+        $.ajax({
+            type: 'POST',
+            context: this,
+            url: pluginObject.ajaxURL,
+            data: {
+                'action': 'woocngr_send_details',
+                'order_id': orderID,
+                'btn_type': btnType,
+            },
+            success: function (response) {
+                if (response.success) {
+                    sendButton.html(pluginObject.sendingSuccessText);
+                    setTimeout(function () {
+                        sendButton.html(htmlPrev);
+                        location.reload();
+                    }, 500);
+                }
+            }
+        });
 
         return false;
     });
+
 
     $(document).on('click', '.woocngr-send-details', function () {
 
@@ -93,6 +142,7 @@
 
         return false;
     });
+
 
     $(document).on('click', '.woocngr-popup-send', function () {
 
@@ -181,7 +231,6 @@
 
         return false;
     });
-
 
 })(jQuery, window, document, woocngr_object);
 
