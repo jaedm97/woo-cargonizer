@@ -38,12 +38,6 @@ Admin css
     margin-top: 15px;
 }
 
-#woocngr_managerships_id {
-    pointer-events: none;
-    user-select: none;
-    background: #f1f1f1;
-    color: #505050;
-}
 
 .woocngr_product {
     display: none;
