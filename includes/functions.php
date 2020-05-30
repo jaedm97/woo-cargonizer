@@ -259,29 +259,6 @@ if ( ! class_exists( 'woocngr_get_zone_id_from_rate_id' ) ) {
 }
 
 
-if ( ! function_exists( 'update_managerships_id' ) ) {
-	/**
-	 * Update managership id and store profile information
-	 */
-	function update_managerships_id() {
-		if ( ! is_wp_error( $response = woocngr_get_curl_response( 'profile', array(), false, false ) ) ) {
-
-			update_option( 'woocngr_profile', $response );
-
-			$managerships   = woocngr()->get_args_option( 'managerships', array(), $response );
-			$managership    = woocngr()->get_args_option( 'managership', array(), $managerships );
-			$managership_id = woocngr()->get_args_option( 'id', '', $managership );
-
-			if ( is_array( $managership_id ) && isset( $managership_id[0] ) ) {
-				$managership_id = $managership_id[0];
-			}
-
-			update_option( 'woocngr_managerships_id', $managership_id );
-		}
-	}
-}
-
-
 if ( ! function_exists( 'woocngr_update_agreements' ) ) {
 	/**
 	 * Update agreements data and save into `woocngr_agreement_data` in option table
@@ -695,13 +672,6 @@ if ( ! class_exists( 'woocngr_services_data' ) ) {
 
 add_action( 'wp_footer', function () {
 	if ( isset( $_GET['debug'] ) && $_GET['debug'] === 'yes' ) {
-
-
-//		$response = woocngr_create_consignment( 58, array( 'btn_type' => 'large' ) );
-//
-//		echo '<pre>';
-//		var_dump( $response );
-//		echo '</pre>';
 
 		/**
 		 * Display any option value

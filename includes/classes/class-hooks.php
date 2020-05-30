@@ -289,14 +289,6 @@ if ( ! class_exists( 'WOOCNGR_Hooks' ) ) {
 
 
 			/**
-			 * Update managership ID through API
-			 */
-			if ( $api_for === 'woocngr_managerships_id' ) {
-				update_managerships_id();
-			}
-
-
-			/**
 			 * Get transport agrrements data
 			 */
 			if ( $api_for === 'woocngr_transport_agreement' ) {
@@ -328,13 +320,6 @@ if ( ! class_exists( 'WOOCNGR_Hooks' ) ) {
 					esc_html__( 'Get Transport Agreements', WOOCNGR_TD )
 				);
 			}
-
-//			if ( woocngr()->get_args_option( 'id', '', $option ) === 'woocngr_managerships_id' ) {
-//				printf( '<a href="%s" class="woocngr-field-extra"><span class="dashicons dashicons-image-rotate"></span> %s</a>',
-//					woocngr()->get_request_url( array( 'api_for' => 'woocngr_managerships_id' ) ),
-//					esc_html__( 'Get ID automatically from API', WOOCNGR_TD )
-//				);
-//			}
 
 			if ( woocngr()->get_args_option( 'id', '', $option ) === 'woocngr_printer_id' ) {
 				printf( '<a href="%s" class="woocngr-field-extra"><span class="dashicons dashicons-image-rotate"></span> %s</a>',

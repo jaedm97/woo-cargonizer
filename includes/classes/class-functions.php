@@ -76,31 +76,6 @@ if ( ! class_exists( 'WOOCNGR_Functions' ) ) {
 			return $agreements;
 		}
 
-
-		/**
-		 * Return Managership or Sender ID from API
-		 *
-		 * @return mixed|string
-		 */
-		function update_managerships_id() {
-
-			if ( ! empty( $managership_id = woocngr()->get_option( 'woocngr_managerships_id' ) ) ) {
-				return $managership_id;
-			}
-
-			if ( is_wp_error( $response = woocngr_get_curl_response( 'profile', array(), false, false ) ) ) {
-				return '';
-			}
-
-			update_user_meta( get_current_user_id(), 'woocngr_profile', $response );
-
-			$managerships = $this->get_args_option( 'managerships', array(), $response );
-			$managership  = $this->get_args_option( 'managership', array(), $managerships );
-
-			return $this->get_args_option( 'id', array(), $managership );
-		}
-
-
 		/**
 		 * Return complete curl URL
 		 *
@@ -467,17 +442,7 @@ if ( ! class_exists( 'WOOCNGR_Functions' ) ) {
 		 * Set managership ID
 		 */
 		function set_managership_id() {
-
-			$woocngr_profile = $this->get_option( 'woocngr_profile', array() );
-			$managerships    = $this->get_args_option( 'managerships', array(), $woocngr_profile );
-			$managership     = $this->get_args_option( 'managership', array(), $managerships );
-			$managership_id  = $this->get_args_option( 'id', '', $managership );
-
-			if ( is_array( $managership_id ) && isset( $managership_id[0] ) ) {
-				$managership_id = $managership_id[0];
-			}
-
-			$this->managership_id = $managership_id;
+			$this->managership_id = $this->get_option( 'woocngr_managerships_id' );
 		}
 
 
@@ -568,9 +533,14 @@ if ( ! class_exists( 'WOOCNGR_Functions' ) ) {
 
 			global $this_preloader;
 
-			$args    = empty( $args ) ? $this_preloader : $args;
-			$default = empty( $default ) ? '' : $default;
-			$key     = empty( $key ) ? '' : $key;
+			$args = empty( $args ) ? $this_preloader : $args;
+			$key  = empty( $key ) ? '' : $key;
+
+			if ( empty( $default ) && is_array( $default ) ) {
+				$default = array();
+			} else if ( empty( $default ) && ! is_array( $default ) ) {
+				$default = '';
+			}
 
 			if ( isset( $args[ $key ] ) && ! empty( $args[ $key ] ) ) {
 				return $args[ $key ];
