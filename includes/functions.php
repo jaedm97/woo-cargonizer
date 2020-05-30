@@ -174,7 +174,7 @@ if ( ! function_exists( 'woocngr_create_consignment' ) ) {
 			) ) );
 		}
 
-		$agreement_id = isset( $agreement_id[0] ) ? reset( $agreement_id ) : $agreement_id;
+		$agreement_id = is_array( $agreement_id ) && isset( $agreement_id[0] ) ? reset( $agreement_id ) : $agreement_id;
 
 		$args_str = '<consignments>
 			<consignment transport_agreement="' . $agreement_id . '" estimate="true">
@@ -389,9 +389,9 @@ if ( ! function_exists( 'woocngr_get_curl_response' ) ) {
 
 		update_option( 'woocngr_debug_last_response', array(
 			'url'      => $curl_url,
-			'request'  => $default,
 			'response' => $response,
 			'error'    => $error,
+			'request'  => $default,
 		) );
 
 		if ( ! empty( $error ) ) {
@@ -684,12 +684,9 @@ add_action( 'wp_footer', function () {
 			echo '</pre>';
 		}
 
-
-		$transfer_agreement = woocngr()->get_option( 'woocngr_transfer_agreement', array() );
-
-
-		echo '<pre>';
-		print_r( $transfer_agreement );
-		echo '</pre>';
+//		$agreement_id = woocngr()->get_option( 'woocngr_transport_agreement', array() );
+//		$agreement_id = is_array( $agreement_id ) ? $agreement_id : array();
+//		$agreement_id = reset( $agreement_id );
+//		$agreement_id = is_array( $agreement_id ) && isset( $agreement_id[0] ) ? reset( $agreement_id ) : $agreement_id;
 	}
 } );

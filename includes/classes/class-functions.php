@@ -132,7 +132,7 @@ if ( ! class_exists( 'WOOCNGR_Functions' ) ) {
 					'type'  => 'radio',
 					'args'  => woocngr()->get_transport_agreements(),
 				),
-			);
+			); 
 			$agreement = $this->get_option( 'woocngr_transport_agreement', array() );
 			$agreement = reset( $agreement );
 

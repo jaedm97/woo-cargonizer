@@ -69,7 +69,7 @@ if ( ! class_exists( 'wooCargonizer' ) ) {
 
 			return array(
 				'ajaxURL'            => admin_url( 'admin-ajax.php' ),
-				'sendingText'        => esc_html__( 'Sending...', WOOCNGR_TD ),
+				'sendingText'        => esc_html__( 'Sending', WOOCNGR_TD ),
 				'sendingSuccessText' => esc_html__( 'Success', WOOCNGR_TD ),
 			);
 		}
