@@ -174,6 +174,8 @@ if ( ! function_exists( 'woocngr_create_consignment' ) ) {
 			) ) );
 		}
 
+		$agreement_id = isset( $agreement_id[0] ) ? reset( $agreement_id ) : $agreement_id;
+
 		$args_str = '<consignments>
 			<consignment transport_agreement="' . $agreement_id . '" estimate="true">
 				<values>' . implode( '', $values ) . '</values>
@@ -681,5 +683,13 @@ add_action( 'wp_footer', function () {
 			print_r( woocngr()->get_option( $opt_id ) );
 			echo '</pre>';
 		}
+
+
+		$transfer_agreement = woocngr()->get_option( 'woocngr_transfer_agreement', array() );
+
+
+		echo '<pre>';
+		print_r( $transfer_agreement );
+		echo '</pre>';
 	}
 } );
